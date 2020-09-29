@@ -1,3 +1,5 @@
+#table = [None] * 8
+
 class HashTableEntry:
     """
     Linked List hash table key/value pair
@@ -6,6 +8,9 @@ class HashTableEntry:
         self.key = key
         self.value = value
         self.next = None
+
+    # def __repr__(self):
+    #     return f"HashTableEntry({repr(self.key)},{repr(self.value)})"
 
 
 # Hash table can't have fewer than this many slots
@@ -20,9 +25,11 @@ class HashTable:
     Implement this.
     """
 
-    def __init__(self, capacity):
-        # Your code here
-
+    def __init__(self, capacity=MIN_CAPACITY):
+        self.capacity = capacity
+        #initiate w/empty values
+        self.bucket = [None] * capacity
+        self.count = 0
 
     def get_num_slots(self):
         """
@@ -34,8 +41,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-
+        return len(self.bucket)
 
     def get_load_factor(self):
         """
@@ -43,17 +49,16 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        #num of items put into the hash table divided by capacity
+        return self.count / self.capacity
 
 
     def fnv1(self, key):
         """
-        FNV-1 Hash, 64-bit
+        # FNV-1 Hash, 64-bit
 
-        Implement this, and/or DJB2.
-        """
-
-        # Your code here
+        # Implement this, and/or DJB2.
+        # """
 
 
     def djb2(self, key):
@@ -62,16 +67,26 @@ class HashTable:
 
         Implement this, and/or FNV-1.
         """
-        # Your code here
+        hash = 5381
+        arr = key.encode('ascii')
+        #arr = key.encode('utf-8')
 
+
+        for i in arr:
+            hash = (( hash * 33) ^ i) % 0x100000000
+        return hash
+        
 
     def hash_index(self, key):
         """
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
+        #generate number representation of string and 
+        #split with modulus by the capacity, get index for key
+
         return self.djb2(key) % self.capacity
+        #return self.fnv1(key) % self.capacity
 
     def put(self, key, value):
         """
@@ -81,7 +96,22 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        #add value by key
+        index = self.hash_index(key)
+        node = self.bucket[index]
+        prev = HashTableEntry(key, value)
+        
+        if node is not None:
+            self.bucket[index] = prev
+            self.bucket[index].next = node
+            
+        #if something is in the bucket
+        else:
+            self.bucket[index] = prev
+            self.count += 1
+        #check if hash resize necessary
+        if self.get_load_factor() > 0.7:
+            self.resize(self.capacity * 2)
 
 
     def delete(self, key):
@@ -92,8 +122,12 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-
+        if key is key:
+            self.put(key, None)
+            self.count -= 1
+        else:
+            print("key not found.")
+    
 
     def get(self, key):
         """
@@ -103,8 +137,14 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-
+        index = self.hash_index(key)
+        node = self.bucket[index]
+        if node is not None:
+            while node:
+                if node.key == key:
+                    return node.value
+                node = node.next
+        return node
 
     def resize(self, new_capacity):
         """
@@ -113,7 +153,20 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        new_hash = HashTable(new_capacity)
+        for entry in self.bucket:
+            if entry:
+                #update new hashtable, pass in key/value
+                new_hash.put(entry.key, entry.value)
+                if entry.next:
+                    #set the current var to entry
+                    current = entry
+                    while current.next:
+                        current = current.next
+                        #use put to modify new hash table
+                        new_hash.put(current.key, current.value)
+        self.bucket = new_hash.bucket
+        self.capacity = new_hash.capacity
 
 
 
