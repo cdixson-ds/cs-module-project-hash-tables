@@ -1,5 +1,19 @@
+
 def word_count(s):
-    # Your code here
+    dicto = {}
+    word = s.lower()
+    stop = '" : ; , . - + = / \ | [ ] { } ( ) * ^ &'.split(" ")
+    for c in stop:
+        word = word.replace(c, "")
+
+    for w in word.split():
+        if w == "":
+            continue
+        if w not in dicto:
+            dicto[w] = 1
+        else:
+            dicto[w] += 1
+    return dicto
 
 
 

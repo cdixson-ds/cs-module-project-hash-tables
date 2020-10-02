@@ -1,4 +1,7 @@
-# Your code here
+import random
+import math
+
+
 
 
 def slowfun_too_slow(x, y):
@@ -9,13 +12,25 @@ def slowfun_too_slow(x, y):
 
     return v
 
+def helper():
+    cache = {}
+    for x in range(2, 14):
+        for y in range(3, 6):
+            cache[(x,y)] = slowfun_too_slow(x, y)
+
+    return cache
+
+lookup = helper()
+
 def slowfun(x, y):
     """
     Rewrite slowfun_too_slow() in here so that the program produces the same
     output, but completes quickly instead of taking ages to run.
     """
-    # Your code here
 
+    return lookup[(x,y)]
+    
+    
 
 
 # Do not modify below this line!
